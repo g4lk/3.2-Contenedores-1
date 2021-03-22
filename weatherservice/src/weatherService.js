@@ -1,18 +1,14 @@
-const {
-  prepareResponse,
-  simulateProcess,
-} = require("./weatherUtils");
+function GetWeather(call, callback) {
 
-const GetWeather = async (call, callback) => {
-  console.log("Request received: " + JSON.stringify(call));
+  console.log('Request received: ' + JSON.stringify(call));
 
   const { city } = call.request;
+  const weather = /^[aeiouAEIOU]/.test(city) ? 'Rainy' : 'Sunny';
+  const defer = 1000 + Math.random() * 2000;
 
-  await simulateProcess();
+  setTimeout(() => {
+    callback(null, { city, weather });
+  }, defer);
+}
 
-  callback(null, prepareResponse(city));
-};
-
-module.exports = {
-  GetWeather
-};
+exports.GetWeather = GetWeather;

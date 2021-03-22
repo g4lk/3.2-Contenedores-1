@@ -9,6 +9,8 @@ RUN curl -LJO https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wai
 
 COPY package.json /usr/src/app/
 COPY src /usr/src/app/src
+COPY public /usr/src/app/public
+COPY config /usr/src/app/config
 
 RUN npm install --only=production
 

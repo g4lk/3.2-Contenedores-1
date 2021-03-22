@@ -1,16 +1,17 @@
 syntax = "proto3";
 
-package org.mastercloudapps.planner.weatherservice;
+option java_multiple_files = true;
 
-message GetWeatherRequest {
-    string city = 1;
+package es.codeurjc.mastercloudapps.planner.grpc;
+
+message GetWeatherRequest { 
+  string city = 1;
 }
-
-message Weather {
-    string city = 1;
-    string weather = 2;
+message Weather { 
+  string city = 1; 
+  string weather = 2;
 }
 
 service WeatherService {
-    rpc GetWeather(GetWeatherRequest) returns (Weather);
+  rpc GetWeather(GetWeatherRequest) returns (Weather);
 }

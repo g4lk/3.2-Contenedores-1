@@ -1,44 +1,60 @@
-const { Eoloplant } = require("../models");
+import { sentToUser, sentToAllUsers } from '../connections/wsConnection.js';
+import { EoloPlant } from '../models/EoloPlant.js';
+import { sendRequestToPlanner } from "../clients/plannerClient.js";
 
-const findAll = async () => {
-  return await Eoloplant.findAll({});
-};
+import DebugLib from 'debug';
 
-const findOne = async (id) => {
-  const eoloplant = await Eoloplant.findAll({
-    where: {
-      id,
-    },
-  });
+const debug = new DebugLib('server:eoloplantService');
 
-  if (!eoloplant || !eoloplant.length > 0) {
-    throw {
-      status: 404,
-      message: "Eoloplant not found",
-    };
-  }
+const usersByPlantId = new Map();
 
-  return eoloplant[0];
-};
+export async function getAllPlants() {
+    return EoloPlant.findAll();
+}
 
-const create = async (city) => {
-  return await Eoloplant.create({ city });
-};
+export async function getEoloplantById(id) {
+    return await EoloPlant.findOne({ where: { id } });
+}
 
-const remove = async (id) => {
-  const affectedRows = await Eoloplant.destroy({ where: { id } });
+export async function removeEoloplantById(id) {
+    const plant = await getEoloplantById(id);
+    if (plant !== null) {
+        plant.destroy();
+    }
+    return plant;
+}
 
-  if (!affectedRows) {
-    throw {
-      status: 404,
-      message: "Eoloplant not found",
-    };
-  }
-};
+export async function createEoloplant(eoloplantCreationRequest, userId) {
 
-module.exports = {
-  findAll,
-  findOne,
-  create,
-  remove
-};
+    debug('createEoloplant', eoloplantCreationRequest, userId);
+
+    const eoloplant = EoloPlant.build(eoloplantCreationRequest);
+    await eoloplant.save();
+
+    usersByPlantId.set(eoloplant.id, userId);
+
+    sendRequestToPlanner({ id: eoloplant.id, city: eoloplant.city });
+
+    return eoloplant;
+}
+
+export async function updateEoloplant(eoloplant) {
+
+    debug('updateEoloplant', eoloplant);
+
+    await EoloPlant.update(eoloplant, { where: { id: eoloplant.id } });
+
+    const updatedEoloplant = await getEoloplantById(eoloplant.id);
+
+    notifyUsers(updatedEoloplant);
+}
+
+export function notifyUsers(eoloplant) {
+
+    if (eoloplant.completed) {
+        sentToAllUsers(eoloplant);
+    } else {
+        sentToUser(usersByPlantId.get(eoloplant.id), eoloplant);
+    }
+}
+
