@@ -1,5 +1,4 @@
-ARG VARIANT="14-buster"
-FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
+FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-14-buster
 
 ENV MYSQL_DBNAME=eoloplantsDB
 ENV MYSQL_HOST=localhost
