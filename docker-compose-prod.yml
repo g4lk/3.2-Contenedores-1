@@ -1,0 +1,73 @@
+version: '3.9'
+
+services:
+  
+  mysql:
+    image: mysql:8.0.22
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=eoloplantsDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./dev/mysql:/var/lib/mysql
+
+  mongodb:
+    image: mongo:4.4.2-bionic
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./dev/mongo:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./dev/rabbitmq:/var/lib/rabbitmq
+
+  server:
+    image: parlaga/server
+    ports:
+      - 3000:3000
+    environment:
+      - MYSQL_DATABASE=eoloplantsDB
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_SERVICE_NAME=mysql
+      - RABBIT_SERVICE_NAME=rabbitmq
+    depends_on:
+      - mysql
+      - rabbitmq
+    command: >
+      bash -c "./wait-for-it.sh mysql:3306 --timeout=30 
+      && ./wait-for-it.sh rabbitmq:5672 --timeout=30 -- node src/server.js"
+
+  weatherservice:
+    image: parlaga/weatherservice
+    ports:
+      - 9090:9090
+    command: >
+      bash -c "node src/server.js"
+
+  toposervice:
+    image: parlaga/toposervice
+    ports:
+      - 8080:8080
+    environment:
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_NAME=topo
+    depends_on:
+      - mongodb
+
+  # Wheatherservice services
+  planner:
+    image: parlaga/planner
+    ports:
+      - 8080:8080
+    command: >
+      bash -c "java -jar planner-0.0.1-SNAPSHOT.jar --grpc.client.weatherServer.address=weather --rabbitmq.host=rabbitmq"
+    depends_on: 
+      - rabbitmq
