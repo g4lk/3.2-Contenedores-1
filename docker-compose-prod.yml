@@ -47,8 +47,6 @@ services:
     image: parlaga/weatherservice
     ports:
       - 9090:9090
-    command: >
-      bash -c "node src/server.js"
 
   toposervice:
     image: parlaga/toposervice
@@ -63,7 +61,7 @@ services:
   planner:
     image: parlaga/planner
     ports:
-      - 8080:8080
+      - 8081:8080
     depends_on: 
       - rabbitmq
       - toposervice
