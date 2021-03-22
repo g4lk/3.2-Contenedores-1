@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline
 
 COPY src .
 
-RUN mvn package
+RUN mvn package -Dmaven.test.skip=true
 
 FROM openjdk:11-jre-slim
 
