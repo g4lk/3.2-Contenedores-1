@@ -3,9 +3,11 @@ version: '3.9'
 services:
   
   mysql:
-    image: mysql:8.0.22
-    env_file:
-      - prod.env
+    image: mysql:8.0.23
+    hostname: mysql
+    environment:
+      - MYSQL_DATABASE=eoloplantsDB
+      - MYSQL_ROOT_PASSWORD=password
     ports:
       - "3306:3306"
     volumes:
@@ -13,27 +15,29 @@ services:
 
   mongodb:
     image: mongo:4.4.2-bionic
-    env_file:
-      - prod.env
+    hostname: mongodb
     ports:
       - "27017:27017"
     volumes:
       - ./dev/mongo:/data/db
 
   rabbitmq:
-    image: rabbitmq:3-management
-    env_file:
-      - prod.env
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
-      - ./dev/rabbitmq:/var/lib/rabbitmq
 
   server:
     image: parlaga/server
-    env_file:
-      - prod.env
+    hostname: server
+    environment:
+      - MYSQL_DATABASE=eoloplantsDB
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_HOST=mysql
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
     ports:
       - 3000:3000
     depends_on:
@@ -45,21 +49,35 @@ services:
 
   weatherservice:
     image: parlaga/weatherservice
+    hostname: weatherservice
     ports:
       - 9090:9090
 
   toposervice:
     image: parlaga/toposervice
+    hostname: toposervice
     ports:
       - 8080:8080
-    env_file:
-      - prod.env
+    environment: 
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_NAME=topo
     depends_on:
       - mongodb
 
   # Wheatherservice services
   planner:
     image: parlaga/planner
+    hostname: planner
+    environment:
+      - TOPOSERVICE_HOST=toposervice
+      - TOPOSERVICE_PORT=8080
+      - GRPC_HOST=weatherservice
+      - GRPC_PORT=9090
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_PORT=5672
     ports:
       - 8081:8080
     depends_on: 

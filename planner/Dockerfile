@@ -1,20 +1,19 @@
-FROM maven:3.6.3-openjdk-11 as builder
+FROM maven:3-openjdk-11 as builder
 
 WORKDIR /app
 
+COPY pom.xml /app/
+COPY src /app/src
 
-COPY pom.xml .
+RUN mvn clean verify
 
-RUN mvn dependency:go-offline
 
-COPY src .
-
-RUN mvn package -Dmaven.test.skip=true
+RUN mvn package -o
 
 FROM openjdk:11-jre-slim
 
 WORKDIR /usr/app/
 
-COPY --from=builder /app/target/*.jar /usr/app/
+COPY --from=builder /app/target/*.jar /usr/app/planner.jar
 
 CMD [ "java", "-jar", "planner.jar" ]

@@ -4,6 +4,7 @@ import es.codeurjc.mastercloudapps.planner.models.LandscapeResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.CompletableFuture;
 
