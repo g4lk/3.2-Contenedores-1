@@ -7,15 +7,15 @@ import org.springframework.retry.support.RetryTemplate;
 
 @SpringBootApplication
 public class Application {
-
-    public static void main(String[] args) {
-        //Retry db connection
+	public static void main(String[] args) throws Throwable {
 		RetryTemplate template = new RetryTemplate();
 		AlwaysRetryPolicy policy = new AlwaysRetryPolicy();
+		
 		template.setRetryPolicy(policy);
-		template.execute(context -> {
-			SpringApplication.run(Application.class, args);
-			return true;
-		});
-    }
+		template.execute(context ->
+			{
+				SpringApplication.run(Application.class, args);
+				return true;
+			});
+	}
 }

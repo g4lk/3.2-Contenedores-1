@@ -2,29 +2,28 @@
 
 Este proyecto es una aplicación distribuida formada por diferentes servicios que se comunican entre sí usando API REST, gRPC y RabbitMQ. La aplicación ofrece un interfaz web que se comunica con el servidor con API REST y WebSockets. 
 
-Algunos servicios están implementados con Node.js/Express y otros con Java/Spring. Estas tecnologías deben estar instaladas en el host para poder construir y ejecutar los servicios. También se requiere Docker para ejecutar los servicios auxiliares (MySQL, MongoDB y RabbitMQ).
+Algunos servicios están implementados con Node.js/Express y otros con Java/Spring. El despliegue y desarrollo están implementados utilizando la tecnología de Docker.
 
-Para la construcción de los servicios y su ejecución, así como la ejecución de los servicios auxiliares requeridos se usan scripts implementados en Node.js. Posiblemente no sea el lenguaje de scripting más utilizado para este caso de uso, pero en este caso concreto facilita la interoperabilidad en varios SOs y es sencillo.
+Disponemos de un Docker Compose llamado `docker-compose.yml` para el despliegue que se encarga de levantar todos los servicios de la aplicación y los servicios auxiliares (MySQL, MongoDB y RabbitMQ). La información de las bases de datos MySQL y MongoDB se persiste en las carpetas `mongo_db` y `mysql_db`. Y la persistencia de la cola RabbitMQ en `rabbitmq`.
+
+Todos los servicios disponen de una carpeta `.devcontainer` que nos permite desarrollar haciendo uso de la tecnología de Remote Containers de VSCode. Para levantar los servicios auxiliares (MySQL, MongoDB y RabbitMQ) se dispone de un Docker Compose llamado `docker-compose-dev.yml`. La información de las bases de datos MySQL y MongoDB se persiste en las carpetas  `mongo_db_dev` y `mysql_db_dev`. Y la persistencia de la cola RabbitMQ en `rabbitmq_dev`.
 
 Esta solución está basada en el trabajo entregado por el alumno Miguel García Sanguino.
 
-## Construir y publicar imagenes docker
+## Desarrollo con VSCode
 
-Existe un script que construye y publica los servicios en dockerhub. Para esto es necesario tener Pack instalado en la maquina.
-Para esto, solo ejecutar:
+Primero tendremos que levantar los servicios auxiliares utilizando el siguiente comando:
 
 ```bash
-$ ./build-and-push.sh DOCKER_ID
+docker-compose -f docker-compose-dev.yml up
 ```
 
-## Ejecutar servicios
+Después podremos ir al servicio que nos interese desarrollar y levantarlo haciendo uso de la tecnología Remote Containers de VSCode.
 
-Una vez ejecutado el script, tendremos las imagenes creadas y publicadas en docker hub. Para ejecutar todos los servicios, es necesario utilizar el siguiente comando.
+## Desplegar
 
+Para desplegar la aplicación tendremos que utilizar el siguiente comando:
+
+```bash
+docker-compose up
 ```
-$ docker-compose -f docker-compose-prod.yml up en la carpeta raiz.
-```
-
-## Acceso servicios
-
-Para el acceso a los servicios, se puede acceder al servidor en http://localhost:3000, y utilizar las ciudades ya creadas para ver que funciona todo correctamente.
