@@ -1,16 +1,20 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.22.0 (955b78124)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: planner
-  name: planner
+  name: plannerservice
 spec:
-  containers:
-    - env:
+  selector:
+    matchLabels:
+      app: plannerservice
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: plannerservice
+    spec:
+      containers:
+      - env:
         - name: GRPC_CLIENT_WEATHERSERVER_ADDRESS
           value: static://weatherservice:9090
         - name: SPRING_RABBITMQ_HOST
@@ -25,8 +29,5 @@ spec:
           value: toposervice
         - name: TOPO_PORT
           value: "8080"
-      image: oscarsotosanchez/planner:v1.0
-      name: planner
-      resources: {}
-  restartPolicy: OnFailure
-status: {}
+        image: oscarsotosanchez/planner:v1.0
+        name: planner

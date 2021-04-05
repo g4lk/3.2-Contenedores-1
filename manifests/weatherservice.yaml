@@ -1,0 +1,37 @@
+## deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weatherservice
+spec:
+  selector:
+    matchLabels:
+      app: weatherservice
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: weatherservice
+    spec:
+      containers:
+      - env:
+        - name: GRPC_HOST
+          value: 0.0.0.0
+        - name: GRPC_PORT
+          value: "9090"
+        image: oscarsotosanchez/weatherservice:v1.0
+        name: weatherservice
+---
+
+## service
+apiVersion: v1
+kind: Service
+metadata:
+  name: weatherservice
+spec:
+  ports:
+  - port: 9090
+  selector:
+    app: weatherservice
+  type: ClusterIP

@@ -1,0 +1,43 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.8.14-management-alpine
+        env:
+          - name: RABBITMQ_DEFAULT_PASS
+            value: password
+          - name: RABBITMQ_DEFAULT_USER
+            value: root
+---
+
+## service
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  ports:
+    - name: "5672"
+      port: 5672
+      targetPort: 5672
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    app: rabbitmq
+  type: ClusterIP
+---
+
