@@ -1,24 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plannerservice
+  name: planner-deployment
 spec:
   selector:
     matchLabels:
-      app: plannerservice
+      app: planner
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: plannerservice
+        app: planner
     spec:
+      restartPolicy: Always
       containers:
       - env:
         - name: GRPC_CLIENT_WEATHERSERVER_ADDRESS
-          value: static://weatherservice:9090
+          value: static://weatherservice-service:9090
         - name: SPRING_RABBITMQ_HOST
-          value: rabbitmq
+          value: rabbitmq-service
         - name: SPRING_RABBITMQ_PASSWORD
           value: password
         - name: SPRING_RABBITMQ_PORT
@@ -26,7 +27,7 @@ spec:
         - name: SPRING_RABBITMQ_USERNAME
           value: root
         - name: TOPO_HOST
-          value: toposervice
+          value: toposervice-service
         - name: TOPO_PORT
           value: "8080"
         image: oscarsotosanchez/planner:v1.0

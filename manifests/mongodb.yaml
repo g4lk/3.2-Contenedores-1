@@ -1,7 +1,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: mongodb
+  name: mongodb-deployment
 spec:
   selector:
     matchLabels:
@@ -13,6 +13,7 @@ spec:
       labels:
         app: mongodb
     spec:
+      restartPolicy: Always
       containers:
       - name: mongodb
         image: mongo:4.4.2-bionic
@@ -23,16 +24,30 @@ spec:
             value: password
           - name: MONGO_INITDB_ROOT_USERNAME
             value: root
+        ports:
+        - containerPort: 27017
+        - containerPort: 27018
+        - containerPort: 27019
 ---
 
 ## service
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: mongodb-service
+  labels:
+    app: mongodb
 spec:
   ports:
-  - port: 27017
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+    - name: "27018"
+      port: 27018
+      targetPort: 27018
+    - name: "27019"
+      port: 27019
+      targetPort: 27019
   selector:
     app: mongodb
   type: ClusterIP

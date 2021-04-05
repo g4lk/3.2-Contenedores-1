@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: toposervice
+  name: toposervice-deployment
 spec:
   selector:
     matchLabels:
@@ -13,6 +13,7 @@ spec:
       labels:
         app: toposervice
     spec:
+      restartPolicy: Always
       containers:
       - name: toposervice
         image: oscarsotosanchez/toposervice:v1.0
@@ -22,20 +23,24 @@ spec:
         - name: SPRING_DATA_MONGODB_DATABASE
           value: topoDB
         - name: SPRING_DATA_MONGODB_HOST
-          value: mongodb
+          value: mongodb-service
         - name: SPRING_DATA_MONGODB_PASSWORD
           value: password
         - name: SPRING_DATA_MONGODB_PORT
           value: "27017"
         - name: SPRING_DATA_MONGODB_USERNAME
           value: root
+        ports:
+        - containerPort: 8080
 ---
 
 ## service
 apiVersion: v1
 kind: Service
 metadata:
-  name: toposervice
+  name: toposervice-service
+  labels:
+    app: toposervice
 spec:
   ports:
   - port: 8080

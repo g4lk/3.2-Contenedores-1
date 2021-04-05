@@ -1,7 +1,7 @@
 apiVersion: apps/v1 
 kind: Deployment
 metadata:
-  name: rabbitmq
+  name: rabbitmq-deployment
 spec:
   selector:
     matchLabels:
@@ -13,21 +13,27 @@ spec:
       labels:
         app: rabbitmq
     spec:
+      restartPolicy: Always
       containers:
       - name: rabbitmq
-        image: rabbitmq:3.8.14-management-alpine
+        image: rabbitmq:3-management
         env:
           - name: RABBITMQ_DEFAULT_PASS
             value: password
           - name: RABBITMQ_DEFAULT_USER
             value: root
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
 ---
 
 ## service
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq
+  name: rabbitmq-service
+  labels:
+    app: rabbitmq
 spec:
   ports:
     - name: "5672"
@@ -39,5 +45,3 @@ spec:
   selector:
     app: rabbitmq
   type: ClusterIP
----
-
